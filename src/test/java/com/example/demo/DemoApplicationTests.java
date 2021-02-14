@@ -14,8 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DemoApplicationTests {
 	@Autowired
 	TestRestTemplate restTemplate;
-	public static GenericContainer<?> devapp = new GenericContainer<>("devapp");
-	public static GenericContainer<?> prodapp = new GenericContainer<>("prodapp");
+	public static GenericContainer<?> devapp = new GenericContainer<>("devapp")
+			.withExposedPorts(8080);
+	public static GenericContainer<?> prodapp = new GenericContainer<>("prodapp")
+			.withExposedPorts(8081);
 
 	@BeforeAll
 	public static void setUp() {
@@ -25,10 +27,10 @@ class DemoApplicationTests {
 
 	@Test
 	void contextLoads() {
-		ResponseEntity<String> forEntity_02 = restTemplate.getForEntity("http://localhost:"
-				+ devapp.getMappedPort(8080), String.class);
-		ResponseEntity<String> forEntity_01 = restTemplate.getForEntity("http://localhost:"
-				+ prodapp.getMappedPort(8081), String.class);
+		ResponseEntity<String> forEntity_02 = restTemplate.getForEntity(String.format("http://localhost:%s/profile",
+				devapp.getMappedPort(8080)), String.class);
+		ResponseEntity<String> forEntity_01 = restTemplate.getForEntity(String.format("http://localhost:%s/profile",
+				prodapp.getMappedPort(8081)), String.class);
 		assertEquals("Current profile is dev", forEntity_02.getBody());
 		assertEquals("Current profile is production", forEntity_01.getBody());
 
